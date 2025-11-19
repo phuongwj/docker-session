@@ -1,9 +1,11 @@
 # 02 - Docker Networking
 
 ## Concept
+
 Docker networking enables containers to communicate with each other and external services. Containers on the same network can reach each other using container names as hostnames.
 
 ## What This Demo Shows
+
 - Creating custom Docker networks
 - Container-to-container communication
 - Service discovery using container names
@@ -11,6 +13,7 @@ Docker networking enables containers to communicate with each other and external
 - Inspecting network details
 
 ## Architecture
+
 ```
 ┌─────────────────┐         ┌─────────────────┐
 │   API Container │────────▶│ Redis Container │
@@ -24,26 +27,31 @@ Docker networking enables containers to communicate with each other and external
 ## CLI Commands
 
 ### 1. Create a custom network
+
 ```bash
 docker network create app-network
 ```
 
 ### 2. List networks
+
 ```bash
 docker network ls
 ```
 
 ### 3. Inspect network details
+
 ```bash
 docker network inspect app-network
 ```
 
 ### 4. Build the API image
+
 ```bash
 docker build -t networking-api .
 ```
 
 ### 5. Start Redis container on the network
+
 ```bash
 docker run -d \
   --name redis-cache \
@@ -52,6 +60,7 @@ docker run -d \
 ```
 
 ### 6. Start API container on the same network
+
 ```bash
 docker run -d \
   --name api-server \
@@ -61,12 +70,14 @@ docker run -d \
 ```
 
 ### 7. Test the API - Check health
+
 ```bash
 curl http://localhost:8000/health
 # Should show redis: connected
 ```
 
 ### 8. Store data in Redis via API
+
 ```bash
 # Set a key-value pair
 curl -X POST http://localhost:8000/cache \
@@ -80,6 +91,7 @@ curl -X POST http://localhost:8000/cache \
 ```
 
 ### 9. Retrieve data from Redis
+
 ```bash
 # Get specific key
 curl http://localhost:8000/cache/username
@@ -89,6 +101,7 @@ curl http://localhost:8000/cache
 ```
 
 ### 10. Verify container communication
+
 ```bash
 # Execute command in API container to ping Redis
 docker exec api-server ping -c 3 redis-cache
@@ -98,6 +111,7 @@ docker logs redis-cache
 ```
 
 ### 11. Test network isolation
+
 ```bash
 # Create another network
 docker network create isolated-network
@@ -111,6 +125,7 @@ docker exec api-server ping -c 3 isolated-redis
 ```
 
 ### 12. Connect container to multiple networks
+
 ```bash
 # Connect api-server to both networks
 docker network connect isolated-network api-server
@@ -120,21 +135,25 @@ docker exec api-server ping -c 3 isolated-redis
 ```
 
 ### 13. Disconnect from network
+
 ```bash
 docker network disconnect isolated-network api-server
 ```
 
 ### 14. Inspect what containers are on a network
+
 ```bash
 docker network inspect app-network --format='{{range .Containers}}{{.Name}} {{end}}'
 ```
 
 ### 15. View container network settings
+
 ```bash
 docker inspect api-server --format='{{json .NetworkSettings.Networks}}'
 ```
 
 ### 16. Cleanup
+
 ```bash
 # Stop containers
 docker stop api-server redis-cache isolated-redis
@@ -147,23 +166,27 @@ docker network rm app-network isolated-network
 ## Network Drivers
 
 ### Bridge (default)
+
 - Default network driver
 - Best for standalone containers
 - Containers can communicate via IP
 
 ### Host
+
 ```bash
 # Container uses host network directly (no isolation)
 docker run -d --network host networking-api
 ```
 
 ### None
+
 ```bash
 # Container has no network access
 docker run -d --network none networking-api
 ```
 
 ## Key Takeaways
+
 - Containers on the same network can communicate using container names
 - Container names act as hostnames (DNS resolution)
 - Networks provide isolation between containers
@@ -173,6 +196,7 @@ docker run -d --network none networking-api
 - Network names in code: `redis://redis-cache:6379`
 
 ## Common Use Cases
+
 - **Microservices**: API + Database + Cache
 - **Development**: App + Database + Message Queue
 - **Testing**: Test runner + Test database
