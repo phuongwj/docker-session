@@ -1,4 +1,4 @@
-# 04 - Docker Networking
+# 02 - Docker Networking
 
 ## Concept
 Docker networking enables containers to communicate with each other and external services. Containers on the same network can reach each other using container names as hostnames.
