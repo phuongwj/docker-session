@@ -1,0 +1,122 @@
+namespace: if you run a software, it helps with isolation.
+
+cgroup: helps with managing cpu
+
+docker run -p 80:80 -d nginx: nginx is a web server which works as a proxy, that uses a load balancer.
+
+-d: runs in the background, we don't have to depend on the terminal.
+
+BASIC APP:
+
+COMMANDS:
+1. docker run -p <host port:container port> nginx
+
+docker run is how you would run docker container
+
+-p is how you assign a port
+
+p stands for port
+
+left side port (i.e. host port): port of your machine 
+container port (right side port): inside docker
+
+so if we do 5001:80, that means we're mapping the container that has port 80 to our 
+host machine that has port 5001.
+
+apparently there's a bridge.
+
+2. docker ps
+shows you the container that's running.
+
+3. docker images
+shows a list of images you have.
+
+4. docker stop [CONTAINER ID]
+stops the container that you're running.
+
+5. docker container rm [CONTAINER ID]
+removes container.
+
+Dockerfile inside 01-basic-app
+FROM: will pull python image, and we'd need a base image to use for the container.
+COPY . .: copies all of your code that's currently in your folder into the container.
+
+6. docker build -t basic-app .
+
+docker build: creates an image for you
+
+creates an image named basic-app with the instructions listed in the current directory,
+so Dockerfile is in the directory of . , so we're using that Dockerfile with a list of
+instructions to build our image.
+
+every command in your Dockerfile is a layer, like WORKDIR /app is 1 layer.
+
+image caching: it caches the stuffs you already built, and if you changed something new,
+then it will just satrt from the layer that has not been cached. we will still use the layers
+that have been cached. it will only re-build the layer that has been changed. making the build
+process faster.
+
+7. docker run -d -p 8000:8000 --name my-app basic-app
+
+docker run, again is how you run your containers. we're calling our container my-app by using
+the image basic-app
+
+8. docker container prune
+
+removes all your containers from your machine
+
+9. docker logs
+
+gives you a list of logs, so that you can see if something went wrong or not.
+
+10. docker exec -it my-app
+
+we'll use this command a lot in order to debug the app.
+
+this allows you to get into the container to debug.
+
+exec: execute
+-it: interactive
+
+DOCKER NETWORK:
+
+Docker networking enables containers to communicate with each other and 
+external services. Containers on the same network can reach each other using 
+container names as hostnames.
+
+So when we run the nginx server earlier, it automatically gets mapped to the
+bridge network.
+
+You can connect a single container to multiple networks. So a single container
+can be part of a multiple network.
+
+So containers cannot talk to each other, and networks are basically for that
+reason. Say for example we have node application vs ai agent application, each
+of those applications have separate networks to run their own containers.
+
+We should always isolate networks if they don't need to communicate.
+
+11. docker run -d --name redis-cache redis:7-alpine
+
+Just like mySQL, MongoDB, Redis is a in-memory database, frequently used for
+caching, because of how fast it is.
+
+I don't really understand the network part, gotta ask him again, or search online.
+
+We haven't attached the Redis container to the network yet, so if we do docker network ls
+we wouldn't see anything.
+
+12. docker network connect app-network redis-cache
+
+We're connecting our redis-cache with app-network.
+
+Docker has two types of volumes, one is local volume, one is bind-mount.
+- We would use a volume for a container if we want the data to persist when you restart it.
+Doing this helps that if we're running a database within a container, and we reset it, the database
+won't persist. 
+
+- Bind Mounts: purely for development purpose only. It links your folder of your machine into
+Docker folders. If you change anything within your local machine, it'll change on your container.
+
+In the volumes, we give name of the volume, in the bind-mount, we give path of the machine and the 
+folder.
